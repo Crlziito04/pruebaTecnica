@@ -1,29 +1,38 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import "./App.css";
-import { SortBy, type User } from "./types.d";
+import { SortBy } from "./types.d";
 import { UsersList } from "./components/UsersList";
+import { useUsers } from "./hooks/useUsers";
+import { Results } from "./components/Results";
 
 function App() {
-  const [users, setUsers] = useState<User[]>([]);
+  const { isError, isLoading, users, refetch, fetchNextPage, hasNextPage } =
+    useUsers();
+
+  // const [users, setUsers] = useState<User[]>([]);
   const [showColors, setShowColors] = useState(false);
   const [sorting, setSorting] = useState<SortBy>(SortBy.NONE);
   const [filterCountry, setFilterCountry] = useState<string | null>(null);
-  const originalUsers = useRef<User[]>([]);
+  //const originalUsers = useRef<User[]>([]);
+  //const [loading, setLoading] = useState(false);
+  //const [error, setError] = useState(false);
+  //const [currentPage, setCurrentPage] = useState(1);
 
   const handleChangeSort = (sort: SortBy) => {
     setSorting(sort);
   };
 
-  const handleReset = () => {
-    setUsers(originalUsers.current);
+  const handleReset = async () => {
+    await refetch();
+    // setUsers(originalUsers.current);
   };
 
-  const handleDelete = (uuid: string) => {
-    const filteredUsers = users.filter((user) => {
-      return user.login.uuid !== uuid;
-    });
-    setUsers(filteredUsers);
-  };
+  //const handleDelete = (uuid: string) => {
+  // const filteredUsers = users.filter((user) => {
+  //   return user.login.uuid !== uuid;
+  // });
+  // setUsers(filteredUsers);
+  // };
 
   const toggleSortCountry = () => {
     const newSortingValue =
@@ -67,15 +76,21 @@ function App() {
     return filterUsersByCountry;
   }, [filterUsersByCountry, sorting]);
 
-  useEffect(() => {
-    fetch(`https://randomuser.me/api?results=100`)
-      .then((res) => res.json())
-      .then((res) => {
-        setUsers(res.results);
-        originalUsers.current = res.results;
-      })
-      .catch((err) => console.log(err));
-  }, []);
+  // useEffect(() => {
+  //   setLoading(true);
+  //   setError(false);
+
+  //   fetchUsers(currentPage)
+  //     .then((users) => {
+  //       setUsers((prevUsers) => {
+  //         const newUsers = prevUsers.concat(users);
+  //         originalUsers.current = newUsers;
+  //         return newUsers;
+  //       });
+  //     })
+  //     .catch((err) => setError(err))
+  //     .finally(() => setLoading(false));
+  // }, [currentPage]);
 
   return (
     <div className="app">
@@ -96,12 +111,26 @@ function App() {
         />
       </header>
       <main>
-        <UsersList
-          handleChangeSort={handleChangeSort}
-          users={sortedUsers}
-          showColors={showColors}
-          handleDelete={handleDelete}
-        />
+        <Results />
+        {users.length > 0 && (
+          <UsersList
+            handleChangeSort={handleChangeSort}
+            users={sortedUsers}
+            showColors={showColors}
+            //handleDelete={handleDelete}
+          />
+        )}
+        {isLoading && <strong>Cargando...</strong>}
+        {isError && <p>Ha habido un error</p>}
+        {!isError && users.length === 0 && <p>No hay usuarios</p>}
+
+        {!isLoading && !isError && hasNextPage === true && (
+          <button onClick={() => void fetchNextPage()}>Mas Resultados</button>
+        )}
+
+        {!isLoading && !isError && hasNextPage === false && (
+          <p>No Mas Resultados</p>
+        )}
       </main>
     </div>
   );

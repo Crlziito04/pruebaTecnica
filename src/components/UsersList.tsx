@@ -3,7 +3,7 @@ import { SortBy, User } from "../types.d";
 interface Props {
   users: User[];
   showColors: boolean;
-  handleDelete: (uuid: string) => void;
+  //handleDelete: (uuid: string) => void;
   handleChangeSort: (sort: SortBy) => void;
 }
 
@@ -11,8 +11,8 @@ export function UsersList({
   handleChangeSort,
   users,
   showColors,
-  handleDelete,
-}: Props) {
+}: // handleDelete,
+Props) {
   return (
     <table width="100%">
       <thead>
@@ -36,11 +36,10 @@ export function UsersList({
       <tbody>
         {users.map((user, index) => {
           const backgroundColor = index % 2 === 0 ? "#333" : "#555";
-
           const color = showColors ? backgroundColor : "transparent";
 
           return (
-            <tr key={user.login.uuid} style={{ backgroundColor: color }}>
+            <tr key={user.email} style={{ backgroundColor: color }}>
               <td>
                 <img src={user.picture.thumbnail} alt={user.name.title} />
               </td>
@@ -48,9 +47,9 @@ export function UsersList({
               <td>{user.name.last}</td>
               <td>{user.location.country}</td>
               <td>
-                <button onClick={() => handleDelete(user.login.uuid)}>
+                {/* <button onClick={() => handleDelete(user.login.uuid)}>
                   Borrar
-                </button>
+                </button> */}
               </td>
             </tr>
           );
