@@ -11,6 +11,7 @@ export const useUsers = () => {
       ["users"], //Key de informacion o query
       fetchUsers,
       {
+        staleTime: 1000 * 500,
         refetchOnWindowFocus: false,
         getNextPageParam: (lastPage) => lastPage.nextCursor,
       }
